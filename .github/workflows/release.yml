@@ -15,7 +15,7 @@ on:
       techxuexi_text:
         description: ''
         required: true
-        default: '交流群： https://github.com/TechXueXi/TechXueXi/issues/14 ，使用方法：https://github.com/TechXueXi/techxuexi-js'
+        default: '更新日志请查看 https://github.com/TechXueXi/techxuexi-js/blob/main/techxuexi-js/version_info.json 交流群： https://github.com/TechXueXi/TechXueXi/issues/14 ，使用方法：https://github.com/TechXueXi/techxuexi-js'
   
 
 jobs:
@@ -40,16 +40,6 @@ jobs:
           draft: false
           prerelease: ${{ github.event.inputs.prerelease }}
           body: ${{ github.event.inputs.techxuexi_text }}
-      - name: Sleep for 30 seconds
-        uses: jakejarvis/wait-action@master
-        with:
-          time: '10m'
-      - uses: actions/checkout@master
-      - name: 1
-        env:
-          UPDATE_1: ${{ secrets.UPDATE_1 }}
-        run: |
-          wget ${{ secrets.UPDATE_1 }}
       - name: Delete Workflow Runs
         uses: Mattraks/delete-workflow-runs@main
         with:
@@ -57,4 +47,17 @@ jobs:
           repository: ${{ github.repository }}
           retain_days: 1
           keep_minimum_runs: 0
+      - name: send telegram message on push
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          disable_web_page_preview: true
+          disable_notification: false
+          format: markdown
+          message: |
+            #techxuexijs  #发布 通知
+            仓库: ${{ github.repository }}
+            `${{ github.event.inputs.version_tag }}` 的版本已经发布。
+            [点击查看这个Github release的详细信息](https://github.com/${{ github.repository }}/releases/tag/${{ github.event.inputs.version_tag }})
 
